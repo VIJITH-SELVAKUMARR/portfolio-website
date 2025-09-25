@@ -1,9 +1,40 @@
 
-import React from 'react';
+import React, { useState, useEffect, useMemo  } from 'react';
 import profilePic from './profilePic.webp';
 import { ArrowDown, Github, Linkedin, Mail } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+// ... rest of your component code
 
 export default function HeroSection() {
+  const [displayText, setDisplayText] = useState("");
+  const roles = useMemo(() => ["Programmer", "Python Developer", "Flutter Expert"], []);
+  const [currentRole, setCurrentRole] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentText = roles[currentRole];
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (displayText.length < currentText.length) {
+          setDisplayText(currentText.slice(0, displayText.length + 1));
+        } else {
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        if (displayText.length > 0) {
+          setDisplayText(displayText.slice(0, -1));
+        } else {
+          setIsDeleting(false);
+          setCurrentRole((prev) => (prev + 1) % roles.length);
+        }
+      }
+    }, isDeleting ? 50 : 100);
+
+    return () => clearTimeout(timeout);
+  }, [displayText, isDeleting, currentRole, roles]);
+
+
   const scrollToAbout = () => {
     const aboutSection = document.getElementById('about');
     if (aboutSection) {
@@ -31,7 +62,7 @@ export default function HeroSection() {
           {/* Left Content - Takes 2/3 of the screen */}
           <div className="w-2/3 px-6 lg:px-16 py-12">
             <div className="max-w-4xl">
-              <div className="mb-6">
+              <div className="mb-6 mt-8">
                 <span className="inline-block px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-4">
                   Welcome to my portfolio
                 </span>
@@ -43,11 +74,27 @@ export default function HeroSection() {
                   Vijith Selvakumar
                 </span>
               </h1>
-              
-              <p className="text-lg lg:text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl">
+
+              <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mb-8"
+        >
+          <h2 className={`text-2xl md:text-4xl lg:text-5xl font-light mb-4`}>
+            I'm a{" "}
+            <span className="font-medium text-gray-800 min-w-[300px] inline-block text-left">
+              {displayText}
+              <span className="animate-pulse">|</span>
+            </span>
+          </h2>
+          <p className="text-lg lg:text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl">
                 Creative developer & designer crafting beautiful digital experiences 
                 with modern technologies and innovative solutions.
-              </p>
+          </p>
+        </motion.div>
+              
+              
               
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
                 <button className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300">
